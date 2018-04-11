@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QLayout, QSizePolicy, QVBoxLayout, QHBoxLayout
-from PyQt5.QtGui import QPaintEvent, QPainter, QPen, QBrush, QColor
+from PyQt5.QtGui import QPaintEvent, QPainter, QPen, QBrush, QColor, QMouseEvent
 from PyQt5.QtCore import Qt
 import sys
 
@@ -13,11 +13,12 @@ class StepperCheckpoint(QWidget):
         self.area = area
         self.visualSize = visualSize
 
+        self.setMouseTracking(True)
+
     def setDrawParameters(self, x, area, visualSize):
         self.area = area
         self.visualSize = visualSize
         self.x = x
-        print(self.x)
 
     def paintEvent(self, paintEvent):
         # return
@@ -31,12 +32,22 @@ class StepperCheckpoint(QWidget):
         # painter.drawRect(0,0,self.width(), self.height())
 
         painter.setBrush(QBrush(QColor(0,200,255,150)))
-        left = self.width()/2 - self.visualSize/2
         top = self.height()/2 - self.visualSize/2
         left = self.x - self.visualSize/2
 
         painter.drawPie(left, top, self.visualSize, self.visualSize, 0, 5760*(16*360))
 
+    def checkMouse(self, mx, my):
+        mid = self.width()/2, self.height()/2
+        lineardist = abs(mx - mid[0]), abs(my - mid[1])
+        dist = (lineardist[0]**2 + lineardist[1]**2)**0.5
+        return dist <= self.visualSize/2
+
+    def mousePressEvent(self, event):
+        print(self.checkMouse(event.x(), event.y()))
+
+    def mouseMoveEvent(self, event):
+        print(self.checkMouse(event.x(), event.y()))
 
 class BridgePainter(QPainter):
     def paintBridges(self):
