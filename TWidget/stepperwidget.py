@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QLayout, QSizePolicy, QVBoxLayout, QHBoxLayout
-from PyQt5.QtGui import QPaintEvent, QPainter, QPen, QBrush
+from PyQt5.QtGui import QPaintEvent, QPainter, QPen, QBrush, QColor
 from PyQt5.QtCore import Qt
 import sys
 
@@ -13,9 +13,11 @@ class StepperCheckpoint(QWidget):
         self.area = area
         self.visualSize = visualSize
 
-    def setDrawParameters(self, area, visualSize):
+    def setDrawParameters(self, x, area, visualSize):
         self.area = area
         self.visualSize = visualSize
+        self.x = x
+        print(self.x)
 
     def paintEvent(self, paintEvent):
         # return
@@ -28,9 +30,11 @@ class StepperCheckpoint(QWidget):
         # painter.setBrush(QBrush(Qt.lightGray))
         # painter.drawRect(0,0,self.width(), self.height())
 
-        painter.setBrush(QBrush(Qt.red))
+        painter.setBrush(QBrush(QColor(0,200,255,150)))
         left = self.width()/2 - self.visualSize/2
         top = self.height()/2 - self.visualSize/2
+        left = self.x - self.visualSize/2
+
         painter.drawPie(left, top, self.visualSize, self.visualSize, 0, 5760*(16*360))
 
 
@@ -98,15 +102,27 @@ class StepperWidget(QWidget):
         print('visual:', self.checkpointVisualSize)
         print('bridge:', self.bridgeLength)
 
-        for checkpoint in self.checkpoints.values():
-            checkpoint.setDrawParameters(self.checkpointArea, self.checkpointVisualSize)
+        # for checkpoint in self.checkpoints.values():
+        #     checkpoint.setDrawParameters(self.checkpointArea, self
+        #     checkpoint.setDrawParameters(self.checkpointArea, self.checkpointVisualSize)
+
+        checkpointX = []
+        t = (self.width()-self.checkpointArea)/self.numStep + 1
+        halfVisual = self.checkpointVisualSize/2
+        edgeArea = self.checkpointArea/2
 
         painter = QPainter(self)
         for i in range(self.numStep-1):
-            x1 = self.checkpointArea + self.checkpointVisualSize/2 + i*(self.checkpointVisualSize + self.bridgeLength)
+            x1 = self.checkpointArea + halfVisual + i*(self.checkpointVisualSize + self.bridgeLength)
             x2 = x1 + self.bridgeLength
             y = self.height()/2
             painter.drawLine(x1, y, x2, y)
+
+            checkpointX.append(x1 - edgeArea - i*t - halfVisual)
+        checkpointX.append(x2 - edgeArea - (self.numStep-1)*t + halfVisual)
+
+        for checkpoint, x in zip(self.checkpoints.values(), checkpointX):
+            checkpoint.setDrawParameters(x, self.checkpointArea, self.checkpointVisualSize)
 
         painter.drawLine(0, 0, self.width(), self.height())
         painter.drawLine(self.checkpointArea/2, 0, self.checkpointArea/2, self.height())
