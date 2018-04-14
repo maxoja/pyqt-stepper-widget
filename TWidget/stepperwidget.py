@@ -134,6 +134,12 @@ class StepperWidget(QWidget):
         for checkpoint in self.checkpoints.values():
             checkpoint.setOnClick(onClick)
 
+    def setPrimaryText(self, text, id):
+        self.checkpoints[id].setPrimaryText(text)
+
+    def setSecondaryText(self, text, id):
+        self.checkpoints[id].setSecondaryText(text)
+
     def __calculateCheckpointArea(self):
         checkpointArea = self.width()/(self.numStep+1)
 
@@ -206,6 +212,14 @@ if __name__ == '__main__':
     # window.setLayout(layout)
     window = StepperWidget(4)
     window.setCurrentStep(2)
+    window.setPrimaryText('v1.0', 0)
+    window.setPrimaryText('v1.1', 1)
+    window.setPrimaryText('v1.2', 2)
+    window.setPrimaryText('v1.3', 3)
+    window.setSecondaryText('release', 0)
+    window.setSecondaryText('debug', 1)
+    window.setSecondaryText('refact', 2)
+    window.setSecondaryText('update', 3)
     window.show()
 
     sys.exit(app.exec_())
